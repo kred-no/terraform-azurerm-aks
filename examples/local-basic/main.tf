@@ -39,7 +39,7 @@ module "CLUSTER" {
   source = "./../../../terraform-azurerm-aks"
 
   // Config
-  node_resource_group_name   = format("%s-AksNodes", azurerm_resource_group.MAIN.name)
+  node_resource_group_name = format("%s-AksNodes", azurerm_resource_group.MAIN.name)
 
   // References
   tags           = local.tags

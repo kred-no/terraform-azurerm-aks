@@ -611,8 +611,8 @@ variable "container_registry_enabled" {
 
 variable "container_registry_name" {
   description = "Globally unique name required."
-  type    = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "container_registry" {

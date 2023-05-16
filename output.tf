@@ -26,3 +26,8 @@ output "container_registry_url" {
   sensitive = false
   value     = one(azurerm_container_registry.MAIN[*].login_server)
 }
+
+output "cluster_name" {
+  sensitive = false
+  value     = one(azurerm_kubernetes_cluster.MAIN[*].name)
+}

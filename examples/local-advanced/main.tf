@@ -5,7 +5,7 @@
 locals {
   flags = {
     system_pool_enabled = true
-    user_pool_enabled   = false
+    user_pool_enabled   = true
     acr_enabled         = true
   }
 
@@ -101,6 +101,15 @@ resource "azurerm_subnet_route_table_association" "MAIN" {
 }
 
 ////////////////////////
+// Private DNS
+////////////////////////
+
+/*resource "azurerm_private_dns_zone" "MAIN" {
+  name                = "internal.example.io"
+  resource_group_name = azurerm_resource_group.MAIN.name
+}*/
+
+////////////////////////
 // Module
 ////////////////////////
 
@@ -114,20 +123,61 @@ module "CLUSTER" {
   container_registry_enabled = local.flags.acr_enabled
   container_registry_name    = format("acr%s", random_string.RESOURCE.result) // Globally Unique name required
 
-  default_node_pool = {
-    vnet_subnet_id = azurerm_subnet.MAIN["SystemNodeSubnet"].id
-  }
-
   network_profile = {
     network_plugin = "azure"
     network_mode   = "transparent" // Required
     network_policy = "azure"
   }
 
+  auto_scaler_profile = {} // Use defaults
+
+  maintenance_window = {
+    allowed = [{
+      day   = "Saturday"
+      hours = [2, 3, 4, 5]
+      }, {
+      day   = "Sunday"
+      hours = [2, 3, 4, 5]
+    }]
+  }
+
+  default_node_pool = {
+    vnet_subnet_id = azurerm_subnet.MAIN["SystemNodeSubnet"].id
+    max_pods       = 64
+    os_sku         = "Mariner"
+
+    enable_auto_scaling = false
+    #auto_scaling_max_count = 1
+    #auto_scaling_min_count = 1
+
+    upgrade_settings = {
+      max_surge = 1
+    }
+  }
+
   node_pools = local.flags.user_pool_enabled ? [{
-    name = "userpool"
+    name           = "userpool"
     vnet_subnet_id = azurerm_subnet.MAIN["UserNodeSubnet"].id
+    max_pods       = 64
+    os_sku         = "Mariner"
+
+    enable_auto_scaling    = true
+    auto_scaling_max_count = 2
+    auto_scaling_min_count = 0
+
+    upgrade_settings = {
+      max_surge = 1
+    }
   }] : []
+
+  azure_ad_rbac = {
+    managed            = true
+    azure_rbac_enabled = true
+    
+    admin_group_object_ids = [
+      // Aks Administrator Azure AD Group Ids
+    ]
+  }
 
   // External References
   tags           = local.tags
@@ -146,4 +196,14 @@ output "kube_config" {
 output "container_registry_url" {
   sensitive = false
   value     = one(module.CLUSTER[*].container_registry_url)
+}
+
+output "az_auth" {
+  sensitive = false
+
+  value = format(
+    "az aks get-credentials --resource-group %s --name %s",
+    azurerm_resource_group.MAIN.name,
+    one(module.CLUSTER[*].cluster_name),
+  )
 }

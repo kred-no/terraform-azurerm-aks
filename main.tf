@@ -362,7 +362,7 @@ resource "azurerm_kubernetes_cluster" "MAIN" {
 
         content {
           day   = allowed.value["day"]
-          hours = allowed.value["hour"]
+          hours = allowed.value["hours"]
         }
       }
 
@@ -448,7 +448,7 @@ resource "azurerm_kubernetes_cluster" "MAIN" {
 
 resource "azurerm_kubernetes_cluster_node_pool" "MAIN" {
   for_each = {
-    for pool in var.node_pools: pool.name => pool
+    for pool in var.node_pools : pool.name => pool
   }
 
   name                          = each.value["name"]

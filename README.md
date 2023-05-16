@@ -2,9 +2,14 @@
 
 Deploy an Azure Kubernetes Service solution (with private API), using Terraform
 
-## Access Cluster
+See 'examples' folder for working examples
+
+## Access Cluster (public)
 
 ```bash
+# Install CLI binary (note: Azure AD + Azure RBAC requires 'kubelogin' as well)
+az aks install-cli
+
 # Get credentials
 az aks get-credentials --resource-group "<ResourceGroup>" --name "<ClusterName>"
 
