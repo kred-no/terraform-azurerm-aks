@@ -6,26 +6,8 @@ data "azurerm_resource_group" "MAIN" {
   name = var.resource_group.name
 }
 
-data "azurerm_virtual_network" "MAIN" {
-  name                = var.subnet.virtual_network_name
-  resource_group_name = var.subnet.resource_group_name
-}
-
-data "azurerm_subnet" "MAIN" {
-  name                 = var.subnet.name
-  resource_group_name  = var.subnet.resource_group_name
-  virtual_network_name = data.azurerm_virtual_network.MAIN.name
-}
-
-data "azurerm_network_security_group" "MAIN" {
-  count = var.network_security_group != null ? 1 : 0
-
-  name                = var.network_security_group.name
-  resource_group_name = var.network_security_group.resource_group_name
-}
-
 ////////////////////////
-// User Role Assignment
+// User Identity
 ////////////////////////
 
 resource "azurerm_user_assigned_identity" "MAIN" {
@@ -41,81 +23,10 @@ resource "azurerm_role_assignment" "MAIN" {
     "Private DNS Zone Contributor",
   ])
 
-  role_definition_name = each.value
-  principal_id         = azurerm_user_assigned_identity.MAIN.principal_id
-  scope                = data.azurerm_resource_group.MAIN.id
-}
-
-////////////////////////
-// Network Security 
-////////////////////////
-
-resource "azurerm_application_security_group" "MAIN" {
-  count = var.network_security_group != null ? 1 : 0
-
-  name                = join("-", [data.azurerm_subnet.MAIN.name, "asg"])
-  tags                = var.tags
-  location            = data.azurerm_virtual_network.MAIN.location
-  resource_group_name = data.azurerm_virtual_network.MAIN.name
-}
-
-resource "azurerm_network_security_rule" "MAIN" {
-  for_each = {
-    for rule in var.nsg_rules : rule.priority => rule
-    if var.network_security_group != null
-  }
-
-  name        = each.value["name"]
-  priority    = each.value["priority"]
-  description = each.value["description"]
-  protocol    = each.value["protocol"]
-  access      = each.value["access"]
-  direction   = each.value["direction"]
-
-  source_port_range            = each.value["source_port_range"]
-  source_port_ranges           = each.value["source_port_ranges"]
-  source_address_prefix        = each.value["source_address_prefix"]
-  source_address_prefixes      = each.value["source_address_prefixes"]
-  destination_port_range       = each.value["destination_port_range"]
-  destination_port_ranges      = each.value["destination_port_ranges"]
-  destination_address_prefix   = each.value["destination_address_prefix"]
-  destination_address_prefixes = each.value["destination_address_prefixes"]
-
-  source_application_security_group_ids = flatten([
-    each.value["source_application_security_group_ids"],
-    anytrue([
-      length(each.value["source_address_prefix"]) > 0,
-      length(each.value["source_address_prefixes"]) > 0,
-    ]) ? [] : [one(azurerm_application_security_group.MAIN[*].id)],
-  ])
-
-  destination_application_security_group_ids = flatten([
-    each.value["destination_application_security_group_ids"],
-    anytrue([
-      length(each.value["destination_address_prefix"]) > 0,
-      length(each.value["destination_address_prefixes"]) > 0,
-    ]) ? [] : [one(azurerm_application_security_group.MAIN[*].id)],
-  ])
-
-  network_security_group_name = one(data.azurerm_network_security_group.MAIN[*].name)
-  resource_group_name         = one(data.azurerm_network_security_group.MAIN[*].resource_group_name)
-}
-
-////////////////////////
-// Network Routing
-////////////////////////
-
-resource "azurerm_route_table" "MAIN" {
-  name = join("-", [var.cluster_name, "rtable"])
-
-  tags                = var.tags
-  resource_group_name = data.azurerm_virtual_network.MAIN.resource_group_name
-  location            = data.azurerm_virtual_network.MAIN.location
-}
-
-resource "azurerm_subnet_route_table_association" "MAIN" {
-  subnet_id      = data.azurerm_subnet.MAIN.id
-  route_table_id = azurerm_route_table.MAIN.id
+  role_definition_name             = each.value
+  principal_id                     = azurerm_user_assigned_identity.MAIN.principal_id
+  scope                            = data.azurerm_resource_group.MAIN.id
+  skip_service_principal_aad_check = true
 }
 
 ////////////////////////
@@ -269,6 +180,49 @@ resource "azurerm_kubernetes_cluster" "MAIN" {
 
       content {
         max_surge = upgrade_settings.value["max_surge"]
+      }
+    }
+  }
+
+  dynamic "network_profile" {
+    for_each = var.network_profile[*]
+
+    content {
+      network_plugin      = network_profile.value["network_plugin"]
+      network_mode        = network_profile.value["network_mode"]
+      network_policy      = network_profile.value["network_policy"]
+      dns_service_ip      = network_profile.value["dns_service_ip"]
+      docker_bridge_cidr  = network_profile.value["docker_bridge_cidr"]
+      ebpf_data_plane     = network_profile.value["ebpf_data_plane"]
+      network_plugin_mode = network_profile.value["network_plugin_mode"]
+      outbound_type       = network_profile.value["outbound_type"]
+      pod_cidr            = network_profile.value["pod_cidr"]
+      pod_cidrs           = network_profile.value["pod_cidrs"]
+      service_cidr        = network_profile.value["service_cidr"]
+      service_cidrs       = network_profile.value["service_cidrs"]
+      ip_versions         = network_profile.value["ip_versions"]
+      load_balancer_sku   = network_profile.value["load_balancer_sku"]
+
+      dynamic "load_balancer_profile" {
+        for_each = network_profile.value["load_balancer_profile"][*]
+
+        content {
+          idle_timeout_in_minutes     = load_balancer_profile.value["idle_timeout_in_minutes"]
+          managed_outbound_ip_count   = load_balancer_profile.value["managed_outbound_ip_count"]
+          managed_outbound_ipv6_count = load_balancer_profile.value["managed_outbound_ipv6_count"]
+          outbound_ip_address_ids     = load_balancer_profile.value["outbound_ip_address_ids"]
+          outbound_ip_prefix_ids      = load_balancer_profile.value["outbound_ip_prefix_ids"]
+          outbound_ports_allocated    = load_balancer_profile.value["outbound_ports_allocated"]
+        }
+      }
+
+      dynamic "nat_gateway_profile" {
+        for_each = network_profile.value["nat_gateway_profile"][*]
+
+        content {
+          idle_timeout_in_minutes   = nat_gateway_profile.value["idle_timeout_in_minutes"]
+          managed_outbound_ip_count = nat_gateway_profile.value["managed_outbound_ip_count"]
+        }
       }
     }
   }
@@ -493,7 +447,9 @@ resource "azurerm_kubernetes_cluster" "MAIN" {
 ////////////////////////
 
 resource "azurerm_kubernetes_cluster_node_pool" "MAIN" {
-  for_each = toset(var.node_pools)
+  for_each = {
+    for pool in var.node_pools: pool.name => pool
+  }
 
   name                          = each.value["name"]
   vm_size                       = each.value["vm_size"]
@@ -619,17 +575,17 @@ resource "azurerm_kubernetes_cluster_node_pool" "MAIN" {
   }
 
   tags                  = var.tags
-  kubernetes_cluster_id = try(each.value["cluster_id"], one(azurerm_kubernetes_cluster.MAIN[*].id))
+  kubernetes_cluster_id = each.value["cluster_id"] != null ? each.value["cluster_id"] : one(azurerm_kubernetes_cluster.MAIN[*].id)
 }
 
 ////////////////////////
-// Container Registry
+// Azure Container Registry
 ////////////////////////
 
 resource "azurerm_container_registry" "MAIN" {
   count = var.container_registry_enabled ? 1 : 0
 
-  name          = var.container_registry.name
+  name          = var.container_registry_name
   sku           = var.container_registry.sku
   admin_enabled = var.container_registry.admin_enabled
 
@@ -712,12 +668,10 @@ resource "azurerm_container_registry" "MAIN" {
 }
 
 resource "azurerm_role_assignment" "ACR" {
-  for_each = {
-    for registry in azurerm_container_registry.MAIN: registry.name => registry.id
-  }
+  count = var.container_registry_enabled ? 1 : 0
 
-  role_definition_name             = "AcrPull"
-  scope                            = each.value
-  principal_id                     = one(azurerm_kubernetes_cluster.MAIN[*].kubelet_identity[0].object_id)
+  role_definition_name             = var.container_registry_role
+  scope                            = one(azurerm_container_registry.MAIN[*].id)
+  principal_id                     = azurerm_user_assigned_identity.MAIN.principal_id // one(azurerm_kubernetes_cluster.MAIN[*].kubelet_identity[0].object_id)
   skip_service_principal_aad_check = true
 }

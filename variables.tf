@@ -11,7 +11,7 @@ variable "resource_group" {
   })
 }
 
-variable "subnet" {
+/*variable "subnet" {
   description = ""
 
   type = object({
@@ -19,7 +19,7 @@ variable "subnet" {
     resource_group_name  = string
     virtual_network_name = string
   })
-}
+}*/
 
 ////////////////////////
 // Optional
@@ -32,167 +32,8 @@ variable "tags" {
   default = {}
 }
 
-variable "network_security_group" {
-  type = object({
-    name                = string
-    resource_group_name = string
-  })
-
-  default = null
-}
-
-variable "nsg_rules" {
-  type = list(object({
-    priority = number
-    name     = string
-
-    description = optional(string, "Aks Custom Rule")
-    protocol    = optional(string, "Tcp")
-    access      = optional(string, "Allow")
-    direction   = optional(string, "Inbound")
-
-    source_port_range            = optional(string)
-    source_port_ranges           = optional(list(string))
-    source_address_prefix        = optional(string)
-    source_address_prefixes      = optional(list(string))
-    destination_port_range       = optional(string)
-    destination_port_ranges      = optional(list(string))
-    destination_address_prefix   = optional(string)
-    destination_address_prefixes = optional(list(string))
-
-    source_application_security_group_ids      = optional(list(string))
-    destination_application_security_group_ids = optional(list(string))
-  }))
-
-  default = []
-}
-
-variable "http_proxy_config" {
-  type = object({
-    http_proxy  = optional(string)
-    https_proxy = optional(string)
-    no_proxy    = optional(list(string))
-    trusted_ca  = optional(string)
-  })
-
-  default = null
-}
-
-variable "azure_ad_rbac" {
-  type = object({
-    managed                = optional(string)
-    tenant_id              = optional(string)
-    admin_group_object_ids = optional(list(string))
-    azure_rbac_enabled     = optional(bool)
-    client_app_id          = optional(string)
-    server_app_id          = optional(string)
-    server_app_secret      = optional(string)
-  })
-
-  default = null
-}
-
-variable "oms_agent" {
-  type = object({
-    log_analytics_workspace_id      = string
-    msi_auth_for_monitoring_enabled = optional(bool)
-  })
-
-  default = null
-}
-
-variable "ingress_application_gateway" {
-  type = object({
-    gateway_id   = optional(string)
-    gateway_name = optional(string)
-    subnet_cidr  = optional(string)
-    subnet_id    = optional(string)
-  })
-
-  default = null
-}
-
-variable "service_mesh_profile" {
-  type = object({
-    mode = optional(string, "Istio")
-  })
-
-  default = null
-}
-
-variable "storage_profile" {
-  type = object({
-    blob_driver_enabled = optional(bool)
-    disk_driver_enabled = optional(bool)
-    disk_driver_version = optional(string)
-  })
-
-  default = null
-}
-
-variable "web_app_routing" {
-  type = object({
-    dns_zone_id = string
-  })
-
-  default = null
-}
-
-variable "aci_connector_linux" {
-  type = object({
-    subnet_name = string
-  })
-
-  default = null
-}
-
-variable "api_server_access_profile" {
-  type = object({
-    authorized_ip_ranges     = optional(list(string))
-    subnet_id                = optional(string)
-    vnet_integration_enabled = optional(bool)
-  })
-
-  default = null
-}
-
-variable "key_management_service" {
-  type = object({
-    key_vault_key_id         = string
-    key_vault_network_access = optional(string)
-  })
-
-  default = null
-}
-
-variable "key_vault_secrets_provider" {
-  type = object({
-    secret_rotation_enabled  = optional(bool)
-    secret_rotation_interval = optional(string)
-  })
-
-  default = null
-}
-
-variable "confidential_computing" {
-  type = object({
-    sgx_quote_helper_enabled = bool
-  })
-
-  default = null
-}
-
-variable "workload_autoscaler_profile" {
-  type = object({
-    keda_enabled                    = optional(bool)
-    vertical_pod_autoscaler_enabled = optional(bool)
-  })
-
-  default = null
-}
-
 ////////////////////////
-// Azure Kubernetes | System
+// Aks System
 ////////////////////////
 
 variable "cluster_name" {
@@ -489,6 +330,165 @@ variable "auto_scaler_profile" {
   default = null
 }
 
+variable "http_proxy_config" {
+  type = object({
+    http_proxy  = optional(string)
+    https_proxy = optional(string)
+    no_proxy    = optional(list(string))
+    trusted_ca  = optional(string)
+  })
+
+  default = null
+}
+
+variable "azure_ad_rbac" {
+  type = object({
+    managed                = optional(string)
+    tenant_id              = optional(string)
+    admin_group_object_ids = optional(list(string))
+    azure_rbac_enabled     = optional(bool)
+    client_app_id          = optional(string)
+    server_app_id          = optional(string)
+    server_app_secret      = optional(string)
+  })
+
+  default = null
+}
+
+variable "oms_agent" {
+  type = object({
+    log_analytics_workspace_id      = string
+    msi_auth_for_monitoring_enabled = optional(bool)
+  })
+
+  default = null
+}
+
+variable "ingress_application_gateway" {
+  type = object({
+    gateway_id   = optional(string)
+    gateway_name = optional(string)
+    subnet_cidr  = optional(string)
+    subnet_id    = optional(string)
+  })
+
+  default = null
+}
+
+variable "service_mesh_profile" {
+  type = object({
+    mode = optional(string, "Istio")
+  })
+
+  default = null
+}
+
+variable "storage_profile" {
+  type = object({
+    blob_driver_enabled = optional(bool)
+    disk_driver_enabled = optional(bool)
+    disk_driver_version = optional(string)
+  })
+
+  default = null
+}
+
+variable "web_app_routing" {
+  type = object({
+    dns_zone_id = string
+  })
+
+  default = null
+}
+
+variable "aci_connector_linux" {
+  type = object({
+    subnet_name = string
+  })
+
+  default = null
+}
+
+variable "api_server_access_profile" {
+  type = object({
+    authorized_ip_ranges     = optional(list(string))
+    subnet_id                = optional(string)
+    vnet_integration_enabled = optional(bool)
+  })
+
+  default = null
+}
+
+variable "key_management_service" {
+  type = object({
+    key_vault_key_id         = string
+    key_vault_network_access = optional(string)
+  })
+
+  default = null
+}
+
+variable "key_vault_secrets_provider" {
+  type = object({
+    secret_rotation_enabled  = optional(bool)
+    secret_rotation_interval = optional(string)
+  })
+
+  default = null
+}
+
+variable "confidential_computing" {
+  type = object({
+    sgx_quote_helper_enabled = bool
+  })
+
+  default = null
+}
+
+variable "workload_autoscaler_profile" {
+  type = object({
+    keda_enabled                    = optional(bool)
+    vertical_pod_autoscaler_enabled = optional(bool)
+  })
+
+  default = null
+}
+
+variable "network_profile" {
+  type = object({
+    network_plugin      = string
+    network_mode        = optional(string)
+    network_policy      = optional(string)
+    dns_service_ip      = optional(string)
+    docker_bridge_cidr  = optional(string)
+    ebpf_data_plane     = optional(string)
+    network_plugin_mode = optional(string)
+    outbound_type       = optional(string)
+    pod_cidr            = optional(string)
+    pod_cidrs           = optional(list(string))
+    service_cidr        = optional(string)
+    service_cidrs       = optional(list(string))
+    ip_versions         = optional(list(string))
+    load_balancer_sku   = optional(string)
+
+    load_balancer_profile = optional(object({
+      idle_timeout_in_minutes     = optional(number)
+      managed_outbound_ip_count   = optional(number)
+      managed_outbound_ipv6_count = optional(number)
+      outbound_ip_address_ids     = optional(list(string))
+      outbound_ip_prefix_ids      = optional(list(string))
+      outbound_ports_allocated    = optional(number)
+    }), null)
+
+    nat_gateway_profile = optional(object({
+      idle_timeout_in_minutes   = optional(number)
+      managed_outbound_ip_count = optional(number)
+    }), null)
+  })
+
+  default = null
+}
+
 ////////////////////////
 // Node Pools
 ////////////////////////
@@ -607,12 +607,17 @@ variable "node_pools" {
 variable "container_registry_enabled" {
   type    = bool
   default = false
-} 
+}
+
+variable "container_registry_name" {
+  description = "Globally unique name required."
+  type    = string
+  default = null
+}
 
 variable "container_registry" {
   type = object({
     sku                           = optional(string, "Basic")
-    name                          = optional(string, "AzureContainerRegistry")
     admin_enabled                 = optional(bool)
     public_network_access_enabled = optional(bool)
     quarantine_policy_enabled     = optional(bool)
@@ -667,4 +672,10 @@ variable "container_registry" {
   })
 
   default = {}
+}
+
+variable "container_registry_role" {
+  description = "See 'https://learn.microsoft.com/en-us/azure/container-registry/container-registry-roles'"
+  type        = string
+  default     = "AcrPull"
 }

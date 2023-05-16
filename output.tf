@@ -22,12 +22,7 @@ output "user_identity" {
   value       = azurerm_user_assigned_identity.MAIN
 }
 
-output "application_security_group" {
+output "container_registry_url" {
   sensitive = false
-  value     = one(azurerm_application_security_group.MAIN[*])
-}
-
-output "route_table" {
-  sensitive = false
-  value     = azurerm_route_table.MAIN
+  value     = one(azurerm_container_registry.MAIN[*].login_server)
 }
