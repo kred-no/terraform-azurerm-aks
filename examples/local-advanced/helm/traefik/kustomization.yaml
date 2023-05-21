@@ -1,0 +1,35 @@
+# https://doc.traefik.io/traefik/getting-started/install-traefik/#use-the-helm-chart
+# https://github.com/traefik/traefik-helm-chart/tree/master/traefik
+
+helmCharts:
+- name: traefik
+  version: 23.0.1
+  repo: https://traefik.github.io/charts
+  releaseName: traefik-v2
+  includeCRDs: true
+  
+  valuesInline: # {}
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "25Mi"
+      limits:
+        cpu: "300m"
+        memory: "150Mi"
+    
+    providers:
+      kubernetesCRD:
+        enabled: true
+      kubernetesIngress:
+        enabled: false
+
+    experimental:
+      v3:
+        enabled: false
+      plugins:
+        enabled: false
+      kubernetesGateway:
+        enabled: false
+    
+    env: []
+    additionalArguments: []

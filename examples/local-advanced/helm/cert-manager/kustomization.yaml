@@ -1,0 +1,15 @@
+bases: []
+
+resources:
+- ./namespace.yaml
+
+namespace: cert-manager
+
+helmCharts:
+- name: cert-manager
+  version: v1.12.0
+  repo: https://charts.jetstack.io
+  releaseName: v1
+  namespace: cert-manager
+  includeCRDs: true
+  valuesInline: {}

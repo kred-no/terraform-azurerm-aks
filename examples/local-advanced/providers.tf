@@ -10,9 +10,9 @@ terraform {
       source = "hashicorp/azurerm"
     }
 
-    #azuread = {
-    #  source = "hashicorp/azuread"
-    #}
+    azuread = {
+      source = "hashicorp/azuread"
+    }
   }
 }
 
@@ -36,6 +36,6 @@ provider "azurerm" {
   tenant_id       = var.azure_tenant_id       // ARM_TENANT_ID
 }
 
-#provider "azuread" {
-#  tenant_id = var.tenant_id
-#}
+provider "azuread" {
+  tenant_id = var.azure_tenant_id
+}

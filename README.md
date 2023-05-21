@@ -4,6 +4,10 @@ Deploy an Azure Kubernetes Service solution (with private API), using Terraform
 
 See 'examples' folder for working examples
 
+## Documentation
+
+* [Official 'Azure Kubernetes Service (AKS)' documentation](https://learn.microsoft.com/en-us/azure/aks/)
+
 ## Access Cluster (public)
 
 ```bash

@@ -1,0 +1,51 @@
+bases: []
+
+resources:
+- ./namespace.yaml
+
+namespace: waypoint
+
+helmCharts:
+- name: waypoint
+  version: '0.1.19'
+  repo: https://helm.releases.hashicorp.com
+  releaseName: v1
+  namespace: waypoint
+  includeCRDs: true
+  
+  valuesInline:
+    server:
+      enabled: true
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 125m
+        limits:
+          memory: 256Mi
+          cpu: 250m
+      image:
+        repository: docker.io/hashicorp/waypoint
+        tag: latest
+    
+    runner:
+      enabled: true
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 125m
+        limits:
+          memory: 256Mi
+          cpu: 250m
+      replicas: 1
+      image:
+        repository: docker.io/hashicorp/waypoint
+        tag: latest
+      odr:
+        image:
+          repository: docker.io/hashicorp/waypoint
+          tag: latest
+          pullPolicy: Always
+    
+    ui:
+      service:
+        enabled: true

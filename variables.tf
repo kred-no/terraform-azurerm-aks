@@ -1,5 +1,5 @@
 ////////////////////////
-// Required
+// Core
 ////////////////////////
 
 variable "resource_group" {
@@ -10,20 +10,6 @@ variable "resource_group" {
     location = string
   })
 }
-
-/*variable "subnet" {
-  description = ""
-
-  type = object({
-    name                 = string
-    resource_group_name  = string
-    virtual_network_name = string
-  })
-}*/
-
-////////////////////////
-// Optional
-////////////////////////
 
 variable "tags" {
   description = ""
@@ -159,110 +145,6 @@ variable "run_command_enabled" {
 variable "sku_tier" {
   type    = string
   default = null
-}
-
-variable "default_pool_enabled" {
-  type    = bool
-  default = true
-}
-
-variable "default_node_pool" {
-  type = object({
-    name       = optional(string, "agentpool")
-    vm_size    = optional(string, "Standard_DS2_v2")
-    node_count = optional(number, 1)
-
-    capacity_reservation_group_id = optional(string)
-    custom_ca_trust_enabled       = optional(bool)
-    enable_auto_scaling           = optional(bool)
-    enable_host_encryption        = optional(bool)
-    enable_node_public_ip         = optional(bool)
-    host_group_id                 = optional(string)
-    fips_enabled                  = optional(bool)
-    kubelet_disk_type             = optional(string)
-    max_pods                      = optional(number)
-    message_of_the_day            = optional(string)
-    node_labels                   = optional(map(string))
-    node_public_ip_prefix_id      = optional(string)
-    node_taints                   = optional(list(string))
-    only_critical_addons_enabled  = optional(bool)
-    orchestrator_version          = optional(string)
-    os_disk_size_gb               = optional(number)
-    os_disk_type                  = optional(string)
-    os_sku                        = optional(string)
-    pod_subnet_id                 = optional(string)
-    proximity_placement_group_id  = optional(string)
-    scale_down_mode               = optional(string)
-    temporary_name_for_rotation   = optional(string)
-    type                          = optional(string)
-    tags                          = optional(map(string))
-    ultra_ssd_enabled             = optional(bool)
-    vnet_subnet_id                = optional(string)
-    workload_runtime              = optional(string)
-    zones                         = optional(list(string))
-    auto_scaling_max_count        = optional(number)
-    auto_scaling_min_count        = optional(number)
-
-    kubelet_config = optional(object({
-      allowed_unsafe_sysctls    = optional(list(string))
-      container_log_max_line    = optional(number)
-      container_log_max_size_mb = optional(number)
-      cpu_cfs_quota_enabled     = optional(bool)
-      cpu_cfs_quota_period      = optional(number)
-      cpu_manager_policy        = optional(string)
-      image_gc_high_threshold   = optional(number)
-      image_gc_low_threshold    = optional(number)
-      pod_max_pid               = optional(number)
-      topology_manager_policy   = optional(string)
-    }), null)
-
-    linux_os_config = optional(object({
-      swap_file_size_mb             = optional(number)
-      transparent_huge_page_defrag  = optional(string)
-      transparent_huge_page_enabled = optional(bool)
-      sysctl_config = optional(object({
-        fs_aio_max_nr                      = optional(number)
-        fs_file_max                        = optional(number)
-        fs_inotify_max_user_watches        = optional(number)
-        fs_nr_open                         = optional(number)
-        kernel_threads_max                 = optional(number)
-        net_core_netdev_max_backlog        = optional(number)
-        net_core_optmem_max                = optional(number)
-        net_core_rmem_default              = optional(number)
-        net_core_rmem_max                  = optional(number)
-        net_core_somaxconn                 = optional(number)
-        net_core_wmem_default              = optional(number)
-        net_core_wmem_max                  = optional(number)
-        net_ipv4_ip_local_port_range_max   = optional(number)
-        net_ipv4_ip_local_port_range_min   = optional(number)
-        net_ipv4_neigh_default_gc_thresh1  = optional(number)
-        net_ipv4_neigh_default_gc_thresh2  = optional(number)
-        net_ipv4_neigh_default_gc_thresh3  = optional(number)
-        net_ipv4_tcp_fin_timeout           = optional(number)
-        net_ipv4_tcp_keepalive_intvl       = optional(number)
-        net_ipv4_tcp_keepalive_probes      = optional(number)
-        net_ipv4_tcp_keepalive_time        = optional(number)
-        net_ipv4_tcp_max_syn_backlog       = optional(number)
-        net_ipv4_tcp_max_tw_buckets        = optional(number)
-        net_ipv4_tcp_tw_reuse              = optional(number)
-        net_netfilter_nf_conntrack_buckets = optional(number)
-        net_netfilter_nf_conntrack_max     = optional(number)
-        vm_max_map_count                   = optional(number)
-        vm_swappiness                      = optional(number)
-        vm_vfs_cache_pressure              = optional(number)
-      }), null)
-    }), null)
-
-    node_network_profile = optional(object({
-      node_public_ip_tags = map(string)
-    }), null)
-
-    upgrade_settings = optional(object({
-      max_surge = optional(number)
-    }), null)
-  })
-
-  default = {}
 }
 
 variable "maintenance_window" {
@@ -487,6 +369,114 @@ variable "network_profile" {
   })
 
   default = null
+}
+
+////////////////////////
+// Default Node Pool (System)
+////////////////////////
+
+variable "default_pool_enabled" {
+  type    = bool
+  default = true
+}
+
+variable "default_node_pool" {
+  type = object({
+    name       = optional(string, "agentpool")
+    vm_size    = optional(string, "Standard_DS2_v2")
+    node_count = optional(number, 1)
+
+    capacity_reservation_group_id = optional(string)
+    custom_ca_trust_enabled       = optional(bool)
+    enable_auto_scaling           = optional(bool)
+    enable_host_encryption        = optional(bool)
+    enable_node_public_ip         = optional(bool)
+    host_group_id                 = optional(string)
+    fips_enabled                  = optional(bool)
+    kubelet_disk_type             = optional(string)
+    max_pods                      = optional(number)
+    message_of_the_day            = optional(string)
+    node_labels                   = optional(map(string))
+    node_public_ip_prefix_id      = optional(string)
+    node_taints                   = optional(list(string))
+    only_critical_addons_enabled  = optional(bool)
+    orchestrator_version          = optional(string)
+    os_disk_size_gb               = optional(number)
+    os_disk_type                  = optional(string)
+    os_sku                        = optional(string)
+    pod_subnet_id                 = optional(string)
+    proximity_placement_group_id  = optional(string)
+    scale_down_mode               = optional(string)
+    temporary_name_for_rotation   = optional(string)
+    type                          = optional(string)
+    tags                          = optional(map(string))
+    ultra_ssd_enabled             = optional(bool)
+    vnet_subnet_id                = optional(string)
+    workload_runtime              = optional(string)
+    zones                         = optional(list(string))
+    auto_scaling_max_count        = optional(number)
+    auto_scaling_min_count        = optional(number)
+
+    kubelet_config = optional(object({
+      allowed_unsafe_sysctls    = optional(list(string))
+      container_log_max_line    = optional(number)
+      container_log_max_size_mb = optional(number)
+      cpu_cfs_quota_enabled     = optional(bool)
+      cpu_cfs_quota_period      = optional(number)
+      cpu_manager_policy        = optional(string)
+      image_gc_high_threshold   = optional(number)
+      image_gc_low_threshold    = optional(number)
+      pod_max_pid               = optional(number)
+      topology_manager_policy   = optional(string)
+    }), null)
+
+    linux_os_config = optional(object({
+      swap_file_size_mb             = optional(number)
+      transparent_huge_page_defrag  = optional(string)
+      transparent_huge_page_enabled = optional(bool)
+      sysctl_config = optional(object({
+        fs_aio_max_nr                      = optional(number)
+        fs_file_max                        = optional(number)
+        fs_inotify_max_user_watches        = optional(number)
+        fs_nr_open                         = optional(number)
+        kernel_threads_max                 = optional(number)
+        net_core_netdev_max_backlog        = optional(number)
+        net_core_optmem_max                = optional(number)
+        net_core_rmem_default              = optional(number)
+        net_core_rmem_max                  = optional(number)
+        net_core_somaxconn                 = optional(number)
+        net_core_wmem_default              = optional(number)
+        net_core_wmem_max                  = optional(number)
+        net_ipv4_ip_local_port_range_max   = optional(number)
+        net_ipv4_ip_local_port_range_min   = optional(number)
+        net_ipv4_neigh_default_gc_thresh1  = optional(number)
+        net_ipv4_neigh_default_gc_thresh2  = optional(number)
+        net_ipv4_neigh_default_gc_thresh3  = optional(number)
+        net_ipv4_tcp_fin_timeout           = optional(number)
+        net_ipv4_tcp_keepalive_intvl       = optional(number)
+        net_ipv4_tcp_keepalive_probes      = optional(number)
+        net_ipv4_tcp_keepalive_time        = optional(number)
+        net_ipv4_tcp_max_syn_backlog       = optional(number)
+        net_ipv4_tcp_max_tw_buckets        = optional(number)
+        net_ipv4_tcp_tw_reuse              = optional(number)
+        net_netfilter_nf_conntrack_buckets = optional(number)
+        net_netfilter_nf_conntrack_max     = optional(number)
+        vm_max_map_count                   = optional(number)
+        vm_swappiness                      = optional(number)
+        vm_vfs_cache_pressure              = optional(number)
+      }), null)
+    }), null)
+
+    node_network_profile = optional(object({
+      node_public_ip_tags = map(string)
+    }), null)
+
+    upgrade_settings = optional(object({
+      max_surge = optional(number)
+    }), null)
+  })
+
+  default = {}
 }
 
 ////////////////////////

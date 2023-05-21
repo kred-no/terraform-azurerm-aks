@@ -1,27 +1,24 @@
 ////////////////////////
-// Local customization
+// Local Configuration
 ////////////////////////
 
 locals {
   flags = {
     system_pool_enabled = true
-    user_pool_enabled   = true
-    acr_enabled         = true
+    user_pool_enabled   = false
+    acr_enabled         = false
   }
 
   resource_group_suffix   = "DemoAksAdvanced"
   resource_group_location = "northeurope"
 
+  network_name    = "ExampleAksNetwork"
   network_address = "192.168.0.0/16"
 
   tags = {
     "module-url" = "kred-no/teraform-azurerm-aks"
   }
 }
-
-////////////////////////
-// Core Resources
-////////////////////////
 
 resource "random_string" "RESOURCE" {
   length  = 5
@@ -33,6 +30,10 @@ resource "random_string" "RESOURCE" {
   }
 }
 
+////////////////////////
+// ARM Core Resources
+////////////////////////
+
 resource "azurerm_resource_group" "MAIN" {
   name     = join("-", [random_string.RESOURCE.result, random_string.RESOURCE.keepers.suffix])
   location = local.resource_group_location
@@ -43,12 +44,14 @@ resource "azurerm_resource_group" "MAIN" {
 ////////////////////////
 
 resource "azurerm_virtual_network" "MAIN" {
-  name                = "ExampleAksNetwork"
-  address_space       = [local.network_address]
+  name          = local.network_name
+  address_space = [local.network_address]
+  
   resource_group_name = azurerm_resource_group.MAIN.name
   location            = azurerm_resource_group.MAIN.location
 }
 
+// Create 2 x subnets
 resource "azurerm_subnet" "MAIN" {
   for_each = {
     "SystemNodeSubnet" = [cidrsubnet(local.network_address, 8, 0)]
@@ -62,6 +65,17 @@ resource "azurerm_subnet" "MAIN" {
   resource_group_name  = azurerm_virtual_network.MAIN.resource_group_name
 }
 
+// Provide pre-created public IP for inbound/outbound traffic
+resource "azurerm_public_ip" "MAIN" {
+  name              = "cluster-public-ip"
+  allocation_method = "Static"
+  sku               = "Standard"
+
+  tags                = local.tags
+  resource_group_name = azurerm_virtual_network.MAIN.resource_group_name
+  location            = azurerm_virtual_network.MAIN.location
+}
+
 ////////////////////////
 // Network Security
 ////////////////////////
@@ -73,7 +87,7 @@ resource "azurerm_network_security_group" "MAIN" {
   location            = azurerm_virtual_network.MAIN.location
 }
 
-// Add all aks subnets to nsg
+// Add all aks subnets to same nsg
 resource "azurerm_subnet_network_security_group_association" "MAIN" {
   for_each = azurerm_subnet.MAIN
 
@@ -103,9 +117,10 @@ resource "azurerm_subnet_route_table_association" "MAIN" {
 ////////////////////////
 // Private DNS
 ////////////////////////
+// Only for private clusters
 
 /*resource "azurerm_private_dns_zone" "MAIN" {
-  name                = "internal.example.io"
+  name                = format("privatelink.%s.azmk8s.io", azurerm_virtual_network.MAIN.location)
   resource_group_name = azurerm_resource_group.MAIN.name
 }*/
 
@@ -118,15 +133,22 @@ module "CLUSTER" {
   source = "./../../../terraform-azurerm-aks"
 
   // Config
-  node_resource_group_name   = format("%s-AksNodes", azurerm_resource_group.MAIN.name)
+  node_resource_group_name   = format("%s-Nodes", azurerm_resource_group.MAIN.name)
   default_pool_enabled       = local.flags.system_pool_enabled
   container_registry_enabled = local.flags.acr_enabled
   container_registry_name    = format("acr%s", random_string.RESOURCE.result) // Globally Unique name required
-
+  #private_dns_zone_id        = azurerm_private_dns_zone.MAIN.id // Private clusters only
+  
   network_profile = {
     network_plugin = "azure"
     network_mode   = "transparent" // Required
     network_policy = "azure"
+    
+    load_balancer_profile = {
+      outbound_ip_address_ids = [
+        azurerm_public_ip.MAIN.id,
+      ]
+    }
   }
 
   auto_scaler_profile = {} // Use defaults
@@ -147,8 +169,6 @@ module "CLUSTER" {
     os_sku         = "Mariner"
 
     enable_auto_scaling = false
-    #auto_scaling_max_count = 1
-    #auto_scaling_min_count = 1
 
     upgrade_settings = {
       max_surge = 1
@@ -158,7 +178,7 @@ module "CLUSTER" {
   node_pools = local.flags.user_pool_enabled ? [{
     name           = "userpool"
     vnet_subnet_id = azurerm_subnet.MAIN["UserNodeSubnet"].id
-    max_pods       = 64
+    max_pods       = 50
     os_sku         = "Mariner"
 
     enable_auto_scaling    = true
@@ -173,10 +193,7 @@ module "CLUSTER" {
   azure_ad_rbac = {
     managed            = true
     azure_rbac_enabled = true
-    
-    admin_group_object_ids = [
-      // Aks Administrator Azure AD Group Ids
-    ]
+    //admin_group_object_ids = []
   }
 
   // External References
