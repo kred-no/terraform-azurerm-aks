@@ -1,0 +1,72 @@
+bases: []
+
+resources:
+- ./namespace.yaml
+- ./cert-manager-ca.yaml
+
+namespace: vault
+
+helmCharts:
+- name: vault
+  version: '0.24.1'
+  repo: https://helm.releases.hashicorp.com
+  releaseName: v1
+  namespace: vault
+  includeCRDs: true
+  
+  valuesInline:
+    global:
+      enabled: true
+      tlsDisable: false
+    
+    injector:
+      enabled: true
+      resources:
+        requests:
+          memory: 64Mi
+          cpu: 75m
+        limits:
+          memory: 256Mi
+          cpu: 250m
+      image:
+        repository: "hashicorp/vault-k8s"
+        tag: "latest"
+      agentDefaults:
+        cpuLimit: 300m
+        cpuRequest: 150m
+        memLimit: 128Mi
+        memRequest: 64Mi
+
+    server:
+      enabled: true
+      dev: # Non-dev: kubectl -n vault exec --stdin=true --tty=true vault-0 -- vault operator init
+        enabled: true
+        devRootToken: "root"
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 125m
+        limits:
+          memory: 256Mi
+          cpu: 250m
+      image:
+        repository: hashicorp/vault
+        tag: '1.13.1'
+      service:
+        enabled: true
+        port: 8200
+      ingress:
+        enabled: false
+      config: |
+        ui = true
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+        }
+        storage "file" {
+          path = "/vault/data"
+        }
+
+    ui:
+      enabled: true

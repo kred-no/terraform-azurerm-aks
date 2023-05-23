@@ -1,0 +1,15 @@
+bases: []
+
+resources:
+- ./namespaces.yaml
+
+helmCharts:
+- repo: https://traefik.github.io/charts
+  name: traefik
+  version: '23.0.1'
+  releaseName: v2
+  namespace: traefik
+  includeCRDs: true
+  valuesFile: values.v2-traefik.yaml
+    
+patches: []

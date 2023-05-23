@@ -1,0 +1,22 @@
+bases: []
+
+resources:
+- ./namespaces.yaml
+- "github.com/hashicorp/consul-api-gateway/config/crd?ref=v0.5.4"
+
+helmCharts:
+- repo: https://helm.releases.hashicorp.com
+  name: consul
+  version: '1.1.1'
+  releaseName: v1
+  namespace: consul
+  includeCRDs: true
+  valuesFile: values.consul.yaml
+    
+patches:
+- target:
+    group: policy
+    version: v1beta1
+    kind: PodDisruptionBudget
+    name: '.*'
+  path: ./patch.1.yaml

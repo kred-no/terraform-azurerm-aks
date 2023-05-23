@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: example-com
+  namespace: cert-manager
+spec:
+  secretName: example-com-tls
+  issuerRef:
+    kind: ClusterIssuer
+    group: cert-manager.io
+    name: digicert-cluster-issuer
+  dnsNames:
+  - example.com

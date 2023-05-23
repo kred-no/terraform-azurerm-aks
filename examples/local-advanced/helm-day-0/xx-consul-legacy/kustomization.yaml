@@ -1,0 +1,91 @@
+bases: []
+
+resources:
+- ./namespace.yaml
+
+namespace: consul
+
+helmCharts:
+- name: consul
+  version: 'latest'
+  repo: https://helm.releases.hashicorp.com
+  releaseName: v1
+  namespace: consul
+  includeCRDs: true
+  
+  valuesInline:
+    
+    global:
+      name: consul
+      image: "hashicorp/consul:latest"
+      datacenter: dc1
+      domain: consul
+      acls: # Retrieve b64 encrypted token: "kubectl get secret consul-bootstrap-acl-token -o json"
+        manageSystemACLs: true
+      gossipEncryption:
+        autoGenerate: true
+      tls:
+        enabled: true
+        enableAutoEncrypt : true
+        #verify: true
+        #httpsOnly: true
+   
+    server:
+      enabled: true
+      replicas: 1
+      disruptionBudget:
+        enabled: false
+      exposeGossipAndRPCPorts: false
+      connect: true
+    
+    client:
+      enabled: true
+      exposeGossipPorts: false
+    
+    connectInject:
+      enabled: true
+      disruptionBudget:
+        enabled: false
+    
+    cni:
+      enabled: true
+
+    meshGateway:
+      enabled: false
+    
+    ingressGateways:
+      enabled: false
+    
+    terminatingGateways:
+      enabled: false
+    
+    apiGateway:
+      enabled: false
+    
+    ui:
+      enabled: true
+
+    syncCatalog:
+      enabled: true
+      default: false
+      toK8S: false
+      k8sPrefix: 'k8s-'
+
+patches:
+- target:
+    group: policy
+    version: v1beta1
+    kind: PodDisruptionBudget
+    name: '.*'
+  path: ./patch.yaml
+
+#patchesJson6902:
+#- target:
+#    group: policy
+#    version: v1beta1
+#    kind: 'PodDisruptionBudget'
+#    name: '.*'
+#  patch: |-
+#    - op: replace
+#      path: "/apiVersion"
+#      value: policy/v1

@@ -1,0 +1,67 @@
+# https://github.com/kschoche/traefik-consul/blob/main/traefik-values.yaml
+# https://github.com/traefik/traefik-helm-chart/blob/master/traefik/VALUES.md
+
+logs:
+  general:
+    level: DEBUG
+  access:
+    enabled: true
+
+ports:
+  traefik:
+    expose: true
+    port: 9000
+    exposedPort: 9000
+  metrics:
+    expose: true
+    port: 9100
+    exposedPort: 9100
+  web:
+    expose: true
+    port: 8000
+    exposedPort: 80
+  websecure:
+    expose: true
+    port: 8443
+    exposedPort: 443
+    tls:
+      enabled: true
+
+service:
+  type: ClusterIP
+
+deployment:
+  enabled: true
+  podAnnotations:
+    consul.hashicorp.com/connect-inject: "true"
+    consul.hashicorp.com/connect-service: "v2-traefik"
+    consul.hashicorp.com/transparent-proxy: "true"
+    consul.hashicorp.com/transparent-proxy-overwrite-probes: "true"
+    consul.hashicorp.com/transparent-proxy-exclude-inbound-ports: "8000, 8443, 9000, 9100"
+    consul.hashicorp.com/transparent-proxy-exclude-outbound-cidrs: "10.43.0.1/32" # Kubernetes API CIDR: `kubectl get svc kubernetes --output jsonpath='{.spec.clusterIP}'
+
+providers:
+  kubernetesCRD:
+    enabled: false
+  kubernetesIngress:
+    enabled: false
+
+ingressClass:
+  enabled: false
+
+experimental:
+  v3:
+    enabled: false
+
+# https://doc.traefik.io/traefik/reference/static-configuration/cli/
+additionalArguments:
+- "--api=true"
+- "--api.insecure=true"
+- "--providers.consulcatalog=true"
+- "--providers.consulcatalog.connectAware=true"
+- "--providers.consulcatalog.endpoint.address=consul-server.consul.svc.cluster.local:8501" # Req. Consul transparent proxy enabled
+- "--providers.consulcatalog.endpoint.scheme=https"
+- "--providers.consulcatalog.endpoint.tls.insecureskipverify=true"
+- "--providers.consulcatalog.endpoint.token=74da2e58-491e-cb7e-f79d-3659c6cfeb3e"
+- "--providers.consulcatalog.exposedByDefault=false"
+- "--providers.consulcatalog.serviceName=v3-traefik"

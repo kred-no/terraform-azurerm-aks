@@ -1,0 +1,30 @@
+# https://raw.githubusercontent.com/hashicorp/consul-k8s/main/charts/consul/values.yaml
+
+# kubectl port-forward service/consul-server --namespace consul 8500:8500
+# kubectl port-forward service/consul-server --namespace consul 8501:8501
+# kubectl get secrets/consul-bootstrap-acl-token --template='{{.data.token | base64decode }}'
+
+global:
+  name: consul
+  acls:
+    manageSystemACLs: true
+  gossipEncryption:
+    autoGenerate: true
+  tls:
+    enabled: true
+    enableAutoEncrypt : true
+
+server:
+  enabled: true
+  replicas: 1
+
+client:
+  enabled: false
+
+connectInject:
+  enabled: true
+
+ui:
+  enabled: true
+  service:
+    type: LoadBalancer
