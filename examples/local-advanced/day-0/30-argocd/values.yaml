@@ -1,0 +1,105 @@
+## Argo CD configuration
+## Ref: https://github.com/argoproj/argo-cd
+
+nameOverride: argocd
+
+crds:
+  install: true
+  keep: false
+
+global:
+  revisionHistoryLimit: 3
+  logging:
+    format: text
+    level: info
+    
+configs:
+  cm:
+    create: true
+    exec.enabled: true
+    admin.enabled: true
+
+controller:
+  name: application-controller
+  replicas: 1
+  resources:
+    limits:
+      cpu: 250m
+      memory: 128Mi
+    requests:
+      cpu: 75m
+      memory: 64Mi
+
+dex:
+  enabled: true
+  name: dex-server
+
+redis:
+  enabled: true
+  name: redis
+  podAnnotations:
+    'consul.hashicorp.com/connect-inject': 'true'
+  #service:
+  #  annotations:
+  #    'consul.hashicorp.com/connect-inject': 'true'
+
+redis-ha:
+  enabled: false
+
+server:
+  name: server
+  replicas: 1
+  podAnnotations:
+    'consul.hashicorp.com/connect-inject': 'true'
+  #service:
+  #  annotations:
+  #    'consul.hashicorp.com/connect-inject': 'true'
+  autoscaling:
+    enabled: false
+  resources:
+    limits:
+      cpu: 75m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
+
+repoServer:
+  name: repo-server
+  replicas: 1
+  podAnnotations:
+    'consul.hashicorp.com/connect-inject': 'true'
+  #service:
+  #  annotations:
+  #    'consul.hashicorp.com/connect-inject': 'true'
+
+  autoscaling:
+    enabled: false
+
+applicationSet:
+  enabled: true
+  name: applicationset-controller
+  podAnnotations:
+    'consul.hashicorp.com/connect-inject': 'true'
+  #service:
+  #  annotations:
+  #    'consul.hashicorp.com/connect-inject': 'true'
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+notifications:
+  enabled: true
+  name: notifications-controller
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi

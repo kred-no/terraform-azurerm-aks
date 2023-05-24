@@ -1,0 +1,69 @@
+# https://raw.githubusercontent.com/hashicorp/consul-k8s/main/charts/consul/values.yaml
+
+# kubectl -n consul port-forward service/consul-server --namespace consul 8500:8500
+# kubectl -n consul port-forward service/consul-server --namespace consul 8501:8501
+# kubectl -n consul get secrets/consul-bootstrap-acl-token --template='{{.data.token | base64decode }}'
+
+global:
+  name: consul
+  acls:
+    manageSystemACLs: true
+  gossipEncryption:
+    autoGenerate: true
+  tls:
+    enabled: true
+    enableAutoEncrypt : true
+    verify: true # Removes consul-server-cert ?
+    serverAdditionalDNSSANs: # Add the K8s domain name to the consul server certificate
+    - "consul-server.consul.svc.cluster.local"
+  metrics:
+    enabled: true
+    enableAgentMetrics: true
+    enableGatewayMetrics: true
+  #image: hashicorp/consul:1.15.2
+
+server:
+  enabled: true
+  replicas: 1
+  #securityContext:
+  #  runAsNonRoot: false
+  #  runAsUser: 0
+
+ui:
+  enabled: true
+  service:
+    type: ClusterIP # LoadBalancer | NodePort | ClusterIP
+
+# Inject sidecars for k8s services
+connectInject:
+  enabled: true
+  metrics:
+    defaultEnableMerging: true
+
+# Gateway API (Kubernetes)
+apiGateway:
+  enabled: true
+  image: "hashicorp/consul-api-gateway:0.5.4"
+  managedGatewayClass:
+    enabled: true
+    serviceType: LoadBalancer # ClusterIP | LoadBalancer | NodePort
+    #useHostPorts: false
+
+# k8s sync
+syncCatalog:
+  enabled: true
+  default: false
+  toConsul: true
+  toK8S: false
+
+# Req. if connecting across networks
+meshGateway:
+  enabled: false
+
+# Expose services to non-consul hosts
+terminatingGateways:
+  enabled: false
+
+# Expose services internally
+ingressGateways:
+  enabled: false

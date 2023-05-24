@@ -1,0 +1,14 @@
+installCRDs: true
+
+enableCertificateOwnerRef: true
+
+global:
+  leaderElection:
+    namespace: cert-manager
+
+cainjector:
+  enabled: true
+
+webhook:
+  config:
+    securePort: 10250

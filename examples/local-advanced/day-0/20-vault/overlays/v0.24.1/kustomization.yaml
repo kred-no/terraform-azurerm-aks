@@ -1,0 +1,10 @@
+bases: ../../base
+
+helmCharts:
+- name: vault
+  version: '0.24.1'
+  repo: https://helm.releases.hashicorp.com
+  releaseName: v1
+  namespace: vault-system
+  includeCRDs: true
+  valuesFile: ./helm-values.yaml

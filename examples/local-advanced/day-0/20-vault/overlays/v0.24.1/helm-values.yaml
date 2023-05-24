@@ -1,0 +1,25 @@
+global:
+  enabled: true
+  tlsDisable: false
+
+injector:
+  enabled: true
+
+server:
+  enabled: true
+  dev: # Non-dev: kubectl -n vault exec --stdin=true --tty=true vault-0 -- vault operator init
+    enabled: true
+    devRootToken: "root"
+  config: |
+    ui = true
+    listener "tcp" {
+      tls_disable = 1
+      address = "[::]:8200"
+      cluster_address = "[::]:8201"
+    }
+    storage "file" {
+      path = "/vault/data"
+    }
+
+ui:
+  enabled: true

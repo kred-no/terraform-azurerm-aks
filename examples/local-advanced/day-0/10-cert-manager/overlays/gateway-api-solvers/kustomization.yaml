@@ -1,0 +1,10 @@
+# Leader Election Issue
+
+# > https://github.com/cert-manager/cert-manager/issues/3338
+# > https://github.com/cert-manager/cert-manager/issues/4102
+
+bases: ../../base
+
+resources:
+- ./gateway.yaml
+- ./cluster-issuer.yaml

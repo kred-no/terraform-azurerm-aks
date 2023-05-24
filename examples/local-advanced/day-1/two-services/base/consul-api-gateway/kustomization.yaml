@@ -1,0 +1,3 @@
+resources:
+- ./intentions.yaml
+- ./routes.yaml

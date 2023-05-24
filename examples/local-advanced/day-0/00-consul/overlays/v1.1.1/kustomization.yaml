@@ -1,0 +1,22 @@
+resources:
+- ../../base
+
+helmCharts:
+- repo: https://helm.releases.hashicorp.com
+  name: consul
+  version: '1.1.1'
+  releaseName: v1
+  namespace: consul
+  includeCRDs: true
+  valuesFile: ./helm-values.yaml
+    
+patches:
+- target:
+    group: policy
+    version: v1beta1
+    kind: PodDisruptionBudget
+    name: '.*'
+  patch: |-
+    - op: replace
+      path: "/apiVersion"
+      value: policy/v1

@@ -1,0 +1,2 @@
+resources:
+- github.com/hashicorp/consul-api-gateway/config/crd?ref=v0.5.4
