@@ -6,7 +6,7 @@
 
 global:
   name: consul
-  #image: hashicorp/consul:1.15.2
+  image: hashicorp/consul:1.15.2
   acls:
     manageSystemACLs: true
   gossipEncryption:
@@ -14,32 +14,41 @@ global:
   tls:
     enabled: true
     enableAutoEncrypt : true
-    verify: true # Removes consul-server-cert ?
+    verify:
     serverAdditionalDNSSANs: # Add the K8s domain name to the consul server certificate
-    #- "consul-server.consul-system.svc.cluster.local"
     - "consul-server.consul-system.svc.cluster.local"
   metrics:
     enabled: true
-    enableAgentMetrics: true
+    enableAgentMetrics: false
     enableGatewayMetrics: true
 
 server:
   enabled: true
   replicas: 1
-  #securityContext:
-  #  runAsNonRoot: false
-  #  runAsUser: 0
+  resources:
+    requests:
+      memory: 100Mi
+      cpu: 100m
+    limits:
+      memory: 350Mi
+      cpu: 250m
 
 ui:
   enabled: true
   service:
     type: ClusterIP # LoadBalancer | NodePort | ClusterIP
+  metrics:
+    enabled: true
+    provider: prometheus
+    baseURL: http://v1-prometheus-server.prometheus-system.svc.cluster.local
 
 # Inject sidecars for k8s services
 connectInject:
   enabled: true
+  default: true
   metrics:
-    defaultEnableMerging: true
+    defaultEnabled: true
+    defaultEnableMerging: false # only sidecar metrics
 
 # Gateway API (Kubernetes)
 apiGateway:

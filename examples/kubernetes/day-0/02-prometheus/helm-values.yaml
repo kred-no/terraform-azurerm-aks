@@ -1,0 +1,26 @@
+global:
+  scrape_interval:  5s
+  scrape_timeout: 3s
+
+server:
+  name: server
+  #prefixURL: prometheus
+  #extraFlags:
+  #- web.enable-lifecycle
+  readinessProbeInitialDelay: 0
+  persistentVolume:
+    enabled: false
+  podAnnotations:
+    'consul.hashicorp.com/connect-inject': 'false'
+
+kube-state-metrics:
+  enabled: true
+
+alertmanager:
+  enabled: false
+
+prometheus-node-exporter:
+  enabled: false
+
+prometheus-pushgateway:
+  enabled: false

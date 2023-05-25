@@ -1,0 +1,12 @@
+resources:
+- ./namespace.yaml
+- ./gateway-referencegrant.yaml
+
+helmCharts:
+- name: prometheus
+  version: '22.6.2'
+  repo: https://prometheus-community.github.io/helm-charts
+  releaseName: v1
+  namespace: prometheus-system
+  includeCRDs: true
+  valuesFile: ./helm-values.yaml
