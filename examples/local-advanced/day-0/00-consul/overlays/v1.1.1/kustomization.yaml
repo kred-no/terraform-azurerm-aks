@@ -6,7 +6,7 @@ helmCharts:
   name: consul
   version: '1.1.1'
   releaseName: v1
-  namespace: consul
+  namespace: consul-system
   includeCRDs: true
   valuesFile: ./helm-values.yaml
     

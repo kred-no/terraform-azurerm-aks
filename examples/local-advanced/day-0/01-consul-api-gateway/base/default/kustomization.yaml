@@ -1,5 +1,0 @@
-namespace: default
-
-resources:
-- ./rbac.yaml
-- ./referencegrant.yaml

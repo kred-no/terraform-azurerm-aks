@@ -1,0 +1,10 @@
+resources:
+- ./echo-1.yaml
+- ./echo-2.yaml
+- ./nginx.yaml
+- ./frontend.yaml
+- ./payments.yaml
+- ./product-api-db.yaml
+- ./product-api.yaml
+- ./public-api.yaml
+

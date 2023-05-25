@@ -1,3 +1,4 @@
 resources:
-- ../../base/deployment
-- ../../base/consul-api-gateway
+- ../../base/
+- ./referencegrant.yaml
+- ./intentions.yaml

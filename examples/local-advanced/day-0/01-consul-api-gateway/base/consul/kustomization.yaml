@@ -1,4 +1,0 @@
-namespace: consul
-
-resources:
-- ./gateway.yaml

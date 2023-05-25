@@ -6,6 +6,7 @@
 
 global:
   name: consul
+  #image: hashicorp/consul:1.15.2
   acls:
     manageSystemACLs: true
   gossipEncryption:
@@ -15,12 +16,12 @@ global:
     enableAutoEncrypt : true
     verify: true # Removes consul-server-cert ?
     serverAdditionalDNSSANs: # Add the K8s domain name to the consul server certificate
-    - "consul-server.consul.svc.cluster.local"
+    #- "consul-server.consul-system.svc.cluster.local"
+    - "consul-server.consul-system.svc.cluster.local"
   metrics:
     enabled: true
     enableAgentMetrics: true
     enableGatewayMetrics: true
-  #image: hashicorp/consul:1.15.2
 
 server:
   enabled: true

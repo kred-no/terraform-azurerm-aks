@@ -2,12 +2,12 @@ apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
   name: api-gateway
-  namespace: consul
+  namespace: consul-system
 spec:
   gatewayClassName: consul-api-gateway
   listeners:
-  - protocol: HTTPS
-    name: https
+  - name: https
+    protocol: HTTPS
     port: 8443
     allowedRoutes:
       namespaces:
@@ -17,4 +17,9 @@ spec:
       - kind: Secret
         group: ""
         name: consul-server-cert
-  
+  - name: http
+    protocol: HTTP
+    port: 8000
+    allowedRoutes:
+      namespaces:
+        from: All

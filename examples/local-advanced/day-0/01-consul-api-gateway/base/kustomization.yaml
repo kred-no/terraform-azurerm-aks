@@ -1,0 +1,4 @@
+resources:
+- ./rbac-default-namespace.yaml
+- ./gateway.yaml
+- ./routes.yaml
