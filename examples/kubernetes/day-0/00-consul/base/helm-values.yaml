@@ -45,7 +45,7 @@ ui:
 # Inject sidecars for k8s services
 connectInject:
   enabled: true
-  default: true
+  default: false # annotation required
   metrics:
     defaultEnabled: true
     defaultEnableMerging: false # only sidecar metrics
