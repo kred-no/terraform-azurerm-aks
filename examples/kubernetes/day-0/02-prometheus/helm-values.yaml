@@ -4,10 +4,10 @@ global:
 
 server:
   name: server
-  #prefixURL: /prometheus
+  #prefixURL: /
   defaultFlagsOverride: []
-  #- --web.external-url=/prometheus/
-  #- --storage.tsdb.retention.time=4h
+  #- --web.route-prefix=/
+  #- --storage.tsdb.retention.time=1d
   #- --storage.tsdb.retention.size=256MB
   
   readinessProbeInitialDelay: 0
@@ -18,6 +18,8 @@ server:
 
 kube-state-metrics:
   enabled: true
+  podAnnotations:
+    'consul.hashicorp.com/connect-inject': 'false'
 
 alertmanager:
   enabled: false
