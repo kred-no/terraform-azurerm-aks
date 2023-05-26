@@ -4,9 +4,12 @@ global:
 
 server:
   name: server
-  #prefixURL: prometheus
-  #extraFlags:
-  #- web.enable-lifecycle
+  #prefixURL: /prometheus
+  defaultFlagsOverride: []
+  #- --web.external-url=/prometheus/
+  #- --storage.tsdb.retention.time=4h
+  #- --storage.tsdb.retention.size=256MB
+  
   readinessProbeInitialDelay: 0
   persistentVolume:
     enabled: false
