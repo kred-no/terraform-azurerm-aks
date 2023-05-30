@@ -1,2 +1,6 @@
 resources:
-- ../../base
+- ../../base/common
+- ../../base/helm
+
+# NOTE: Overrides ALL defined namespaces
+namespace: cert-manager

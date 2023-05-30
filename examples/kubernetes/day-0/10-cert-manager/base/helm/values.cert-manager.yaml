@@ -1,0 +1,18 @@
+installCRDs: true
+
+enableCertificateOwnerRef: true
+
+extraArgs:
+- --feature-gates=ExperimentalGatewayAPISupport=true
+
+global:
+  leaderElection:
+    namespace: cert-manager
+
+webhook:
+  replicaCount: 1
+  timeoutSeconds: 10
+  config:
+    apiVersion: webhook.config.cert-manager.io/v1alpha1
+    kind: WebhookConfiguration
+    securePort: 10250

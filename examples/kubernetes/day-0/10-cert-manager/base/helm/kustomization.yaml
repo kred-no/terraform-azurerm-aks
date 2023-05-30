@@ -1,15 +1,12 @@
-resources:
-- ./namespace.yaml
-
 # Leader Election Issue
 #   https://github.com/cert-manager/cert-manager/issues/3338
 #   https://github.com/cert-manager/cert-manager/issues/4102
 
 helmCharts:
 - name: cert-manager
-  version: v1.12.0
+  version: v1.12.1
   repo: https://charts.jetstack.io
   releaseName: v1
   namespace: cert-manager
   includeCRDs: true
-  valuesFile: ./helm-values.yaml
+  valuesFile: ./values.cert-manager.yaml

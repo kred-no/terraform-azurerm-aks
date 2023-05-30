@@ -3,6 +3,7 @@
 Service for retrieving & managing valid certificates on demand.
 
 ## Documentation
+
   * https://cert-manager.io/docs/installation/helm/
   * https://artifacthub.io/packages/helm/cert-manager/cert-manager
   * https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
@@ -14,6 +15,7 @@ Service for retrieving & managing valid certificates on demand.
 
 ## Gateway API integration
 
+  * [Kubernetes Gateway API](https://cert-manager.io/docs/usage/gateway/)
   * [Consul](https://github.com/hashicorp/consul-api-gateway/blob/main/dev/docs/example-setup.md)
   * [Traefik](https://www.jetstack.io/blog/cert-manager-gateway-api-traefik-guide/)
   * [Istio](https://youtu.be/nJUzGJQR3tM)
@@ -22,10 +24,10 @@ Service for retrieving & managing valid certificates on demand.
 
 ```bash
 # Add CRDs (manually)
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.crds.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.1/cert-manager.crds.yaml
 
 # Deploy
-kubectl kustomize --enable-helm "02-cert-manager/" | kubectl apply --filename -
+kubectl kustomize --enable-helm "./day-0/10-cert-manager/overlays/default/" | kubectl apply -f -
 
 # Create cluster issuer (self-signed)
 kubectl apply --filename "02-cert-manager/issuer-cluster-selfsigned.yaml"
@@ -34,7 +36,7 @@ kubectl apply --filename "02-cert-manager/issuer-cluster-selfsigned.yaml"
 kubectl apply --filename "02-cert-manager/issuer-signed.yaml"
 
 # Destroy/Cleanup
-kubectl kustomize --enable-helm "02-cert-manager/" | kubectl delete --filename -
+kubectl kustomize --enable-helm "./day-0/10-cert-manager/overlays/default/" | kubectl delete -f -
 kubectl get Issuers,ClusterIssuers,Certificates,CertificateRequests,Orders,Challenges --all-namespaces
 ```
 

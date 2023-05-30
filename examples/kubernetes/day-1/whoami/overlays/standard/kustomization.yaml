@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+crds: []
+
+namespace: demos
+
+resources:
+- ../../base/namespace
+- ../../base/deployment
+- ../../base/consul-api-gateway
+
+commonAnnotations:
+  module: 'kred-no/terraform-azurerm-aks'
+
+commonLabels: # https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
+  'app.kubernetes.io/name': whoami
+  'app.kubernetes.io/managed-by': kustomize
+  'app.kubernetes.io/part-of': whoami
+  'app.kubernetes.io/instance': standard
+
+# Add to Consul mesh & create http-route
+patchesjson6902:
+- target: # Add annotation for injecting the Consul proxy
+    kind: Deployment
+    group: apps
+    version: v1
+    name: whoami
+  patch: |-
+    - op: replace
+      path: /spec/template/metadata/annotations/consul.hashicorp.com~1connect-inject
+      value: 'true'
+- target: # Routes are required to be in same namespace as the target gateway (?)
+    kind: HTTPRoute
+    group: gateway.networking.k8s.io
+    version: v1beta1
+    name: whoami
+  patch: |-
+    - op: replace
+      path: /metadata/namespace
+      value: consul-system

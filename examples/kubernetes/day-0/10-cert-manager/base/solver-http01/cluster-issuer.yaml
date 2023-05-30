@@ -14,4 +14,4 @@ spec:
           parentRefs:
           - kind: Gateway
             name: api-gateway
-            namespace: consul
+            namespace: consul-system
